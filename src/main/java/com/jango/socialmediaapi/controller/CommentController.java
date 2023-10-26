@@ -8,6 +8,10 @@ import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +33,15 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CommentResponseDto>>> getAllComments() {
-        List<CommentResponseDto> comments = commentService.getAllComments();
-        ApiResponse<List<CommentResponseDto>> response = new ApiResponse<>(HttpStatus.OK.value(), "Comments retrieved successfully", comments);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ApiResponse<Page<CommentResponseDto>>> getAllComments(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortOrder", defaultValue = "asc") String sortOrder
+    ) {
+        Page<CommentResponseDto> comments = commentService.getAllComments(page, size, sortBy, sortOrder);
+        ApiResponse<Page<CommentResponseDto>> response = new ApiResponse<>(200, "Comments retrieved successfully", comments);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{commentId}")

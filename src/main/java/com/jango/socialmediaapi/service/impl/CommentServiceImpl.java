@@ -14,6 +14,7 @@ import com.jango.socialmediaapi.service.CommentService;
 import com.jango.socialmediaapi.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -53,15 +54,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentResponseDto> getAllComments() {
+    public Page<CommentResponseDto> getAllComments(int page, int size, String sortBy, String sortOrder) {
+        Sort.Direction sortDirection = Sort.Direction.fromString(sortOrder);
+        Pageable pageable = PageRequest.of(page, size, sortDirection, sortBy);
+        Page<Comment> commentPage = commentRepository.findAll(pageable);
 
-        List<Comment> commentList = commentRepository.findAll();
-        List<CommentResponseDto> commentResponseList = new ArrayList<>();
-        for (Comment comment : commentList) {
-            CommentResponseDto commentResponse = convertToCommentDTO(comment);
-            commentResponseList.add(commentResponse);
-        }
-        return commentResponseList;
+        return commentPage.map(this::convertToCommentDTO);
     }
 
     @Override

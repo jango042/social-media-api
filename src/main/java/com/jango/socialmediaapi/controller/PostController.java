@@ -10,6 +10,7 @@ import com.jango.socialmediaapi.entity.Post;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.service.PostService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +33,14 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PostResponseDTO>>> getAllPosts() {
-        List<PostResponseDTO> posts = postService.getAllPosts();
-        ApiResponse<List<PostResponseDTO>> response = new ApiResponse<>(HttpStatus.OK.value(), "Posts retrieved successfully", posts);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ApiResponse<Page<PostResponseDTO>>> getAllPosts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortOrder", defaultValue = "asc") String sortOrder) {
+        Page<PostResponseDTO> postsPage = postService.getAllPosts(page, size, sortBy, sortOrder);
+        ApiResponse<Page<PostResponseDTO>> response = new ApiResponse<>(HttpStatus.OK.value(), "Posts retrieved successfully", postsPage);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{postId}")
@@ -84,6 +89,16 @@ public class PostController {
     public ResponseEntity<ApiResponse<CommentResponseDto>> commentOnPost(@PathVariable Long postId, @PathVariable Long userId, @RequestBody CommentDTO commentDto) throws ServiceException {
         CommentResponseDto comment = postService.commentOnPost(postId, userId, commentDto);
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "Comment added successfully", comment), HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<PostResponseDTO>>> searchAndFilterPosts(
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "userId", required = false) Long userId,
+            @RequestParam(name = "sortOrder", defaultValue = "asc") String sortOrder) {
+        List<PostResponseDTO> filteredPosts = postService.searchAndFilterPosts(keyword, userId, sortOrder);
+        ApiResponse<List<PostResponseDTO>> response = new ApiResponse<>(HttpStatus.OK.value(), "Posts retrieved successfully", filteredPosts);
+        return ResponseEntity.ok(response);
     }
 
 }

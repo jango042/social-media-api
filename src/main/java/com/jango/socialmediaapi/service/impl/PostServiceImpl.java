@@ -14,6 +14,10 @@ import com.jango.socialmediaapi.repository.UserRepository;
 import com.jango.socialmediaapi.service.NotificationService;
 import com.jango.socialmediaapi.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,13 +34,15 @@ public class PostServiceImpl implements PostService {
     private final NotificationService notificationService;
 
 
-    @Override
-    public List<PostResponseDTO> getAllPosts() {
 
-        List<Post> postList = postRepository.findAll();
-        return postList.stream()
-                .map(this::convertToPostDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<PostResponseDTO> getAllPosts(int page, int size, String sortBy, String sortOrder) {
+        // Define a Pageable object for pagination and sorting
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.fromString(sortOrder), sortBy);
+
+        Page<Post> postsPage = postRepository.findAll(pageable);
+
+        return postsPage.map(this::convertToPostDTO);
     }
 
     @Override
@@ -113,6 +119,14 @@ public class PostServiceImpl implements PostService {
         postRepository.save(post);
 
         return commentService.convertToCommentDTO(comment);
+    }
+
+    @Override
+    public List<PostResponseDTO> searchAndFilterPosts(String keyword, Long userId, String sortOrder) {
+        List<Post> filteredPosts = postRepository.searchAndFilter(keyword, userId, sortOrder);
+        return filteredPosts.stream()
+                .map(this::convertToPostDTO)
+                .collect(Collectors.toList());
     }
 
     private Post getPostById(Long postId) throws ServiceException {
