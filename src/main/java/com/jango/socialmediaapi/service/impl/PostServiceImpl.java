@@ -67,8 +67,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deletePost(Long postId) throws ServiceException {
+    public void deletePost(Long postId, Long userId) throws ServiceException {
+
         Post post = getPostById(postId);
+        if (!post.getUser().getId().equals(userId)) {
+            throw new ServiceException("You are not the owner of this post and cannot delete it.");
+        }
         postRepository.delete(post);
     }
 
@@ -77,10 +81,17 @@ public class PostServiceImpl implements PostService {
         Post post = getPostById(postId);
         User user = getUserById(userId);
 
+        // Check if the user has already liked the post
+        if (post.getLikes().contains(user)) {
+            throw new ServiceException("You have already liked this post.");
+        }
+
+        post.getLikes().add(user);
         post.setLikesCount(post.getLikesCount() + 1);
-        Post savedPost =  postRepository.save(post);
+        Post savedPost = postRepository.save(post);
 
         return convertToPostDTO(savedPost);
+
     }
 
     @Override

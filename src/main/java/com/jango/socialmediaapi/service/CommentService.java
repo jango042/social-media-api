@@ -11,6 +11,6 @@ public interface CommentService {
     CommentResponseDto createComment(CommentDTO commentDto, Long userId, Long postId) throws ServiceException;
     List<CommentResponseDto> getAllComments();
     CommentResponseDto getCommentById(Long commentId) throws ServiceException;
-    boolean deleteComment(Long commentId) throws ServiceException;
+    boolean deleteComment(Long commentId, Long userId) throws ServiceException;
     CommentResponseDto updateComment(Long commentId, CommentDTO commentDto) throws ServiceException;
 }

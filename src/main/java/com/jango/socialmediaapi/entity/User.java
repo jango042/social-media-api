@@ -47,5 +47,10 @@ public class User extends BaseModel{
     @ManyToMany(mappedBy = "followers")
     private Set<User> following = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(name = "user_likes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id"))
+    private Set<Post> likedPosts = new HashSet<>();
 
 }

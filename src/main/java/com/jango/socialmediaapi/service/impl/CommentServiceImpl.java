@@ -67,9 +67,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public boolean deleteComment(Long commentId) throws ServiceException {
+    public boolean deleteComment(Long commentId, Long userId) throws ServiceException {
         Comment existingComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ServiceException("Comment not found with ID: " + commentId));
+        if (!existingComment.getUser().getId().equals(userId) || !existingComment.getPost().getUser().getId().equals(userId)) {
+            throw new ServiceException("You are not the owner of this comment and cannot delete it.");
+        }
         commentRepository.delete(existingComment);
         return true;
     }

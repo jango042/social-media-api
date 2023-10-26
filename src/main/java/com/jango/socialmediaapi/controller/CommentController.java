@@ -59,9 +59,9 @@ public class CommentController {
         }
     }
 
-    @DeleteMapping("/{commentId}")
-    public ResponseEntity<ApiResponse<String>> deleteComment(@PathVariable Long commentId) throws ServiceException {
-        boolean deleted = commentService.deleteComment(commentId);
+    @DeleteMapping("/{commentId}/{userId}")
+    public ResponseEntity<ApiResponse<String>> deleteComment(@PathVariable Long commentId, @PathVariable Long userId) throws ServiceException {
+        boolean deleted = commentService.deleteComment(commentId, userId);
 
         if (deleted) {
             ApiResponse<String> response = new ApiResponse<>(HttpStatus.NO_CONTENT.value(), "Comment deleted successfully", null);

@@ -31,4 +31,11 @@ public class Post extends BaseModel{
     @OneToMany(mappedBy = "post")
     @JsonBackReference
     private Set<Comment> comments = new HashSet<>();
+
+    @ManyToMany(mappedBy = "likedPosts")
+    private Set<User> likes = new HashSet<>();
+
+    public Set<User> getLikes() {
+        return likes;
+    }
 }

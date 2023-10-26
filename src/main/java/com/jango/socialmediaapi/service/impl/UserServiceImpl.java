@@ -101,6 +101,11 @@ public class UserServiceImpl implements UserService {
         User user = getUserById(userId);
         User followedUser = getUserById(followedUserId);
 
+        // Check if the user is already following the followedUser
+        if (user.getFollowing().contains(followedUser)) {
+            throw new ServiceException("You are already following this user.");
+        }
+
         user.getFollowing().add(followedUser);
         userRepository.save(user);
 
@@ -111,6 +116,11 @@ public class UserServiceImpl implements UserService {
     public User unfollowUser(Long userId, Long unfollowedUserId) throws ServiceException {
         User user = getUserById(userId);
         User unfollowedUser = getUserById(unfollowedUserId);
+
+        // Check if the user is already following the unfollowedUser
+        if (!user.getFollowing().contains(unfollowedUser)) {
+            throw new ServiceException("You are not following this user, so you cannot unfollow them.");
+        }
 
         user.getFollowing().remove(unfollowedUser);
         userRepository.save(user);

@@ -50,10 +50,10 @@ public class PostController {
         }
     }
 
-    @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable Long postId) {
+    @DeleteMapping("/{postId}/{userId}")
+    public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable Long postId, @PathVariable Long userId) {
         try {
-            postService.deletePost(postId);
+            postService.deletePost(postId, userId);
             ApiResponse<String> response = new ApiResponse<>(HttpStatus.NO_CONTENT.value(), "Post deleted successfully", null);
             return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
         } catch (ServiceException e) {
