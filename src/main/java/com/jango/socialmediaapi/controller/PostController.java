@@ -1,7 +1,9 @@
 package com.jango.socialmediaapi.controller;
 
+import com.jango.socialmediaapi.dto.CommentDTO;
 import com.jango.socialmediaapi.dto.PostDTO;
 import com.jango.socialmediaapi.dto.response.ApiResponse;
+import com.jango.socialmediaapi.entity.Comment;
 import com.jango.socialmediaapi.entity.Post;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.service.PostService;
@@ -37,7 +39,7 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<Post>>  getPost(@PathVariable Long postId) throws ServiceException {
         try {
-            Post post = postService.getPostById(postId);
+            Post post = postService.getPost(postId);
             ApiResponse<Post> response = new ApiResponse<>(HttpStatus.OK.value(), "Post retrieved successfully", post);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ServiceException e) {
@@ -67,6 +69,18 @@ public class PostController {
             ApiResponse<Post> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "Post not found", null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PostMapping("/{postId}/like/{userId}")
+    public ResponseEntity<ApiResponse<Post>> likePost(@PathVariable Long postId, @PathVariable Long userId) throws ServiceException {
+        Post post = postService.likePost(postId, userId);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "Post liked successfully", post), HttpStatus.OK);
+    }
+
+    @PostMapping("/{postId}/comment/{userId}")
+    public ResponseEntity<ApiResponse<Comment>> commentOnPost(@PathVariable Long postId, @PathVariable Long userId, @RequestBody CommentDTO commentDto) throws ServiceException {
+        Comment comment = postService.commentOnPost(postId, userId, commentDto);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "Comment added successfully", comment), HttpStatus.OK);
     }
 
 }
