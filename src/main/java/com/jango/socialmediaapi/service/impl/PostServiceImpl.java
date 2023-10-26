@@ -11,12 +11,13 @@ import com.jango.socialmediaapi.entity.User;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.repository.PostRepository;
 import com.jango.socialmediaapi.repository.UserRepository;
+import com.jango.socialmediaapi.service.NotificationService;
 import com.jango.socialmediaapi.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +27,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentServiceImpl commentService;
+    private final NotificationService notificationService;
 
 
     @Override
@@ -89,6 +91,10 @@ public class PostServiceImpl implements PostService {
         post.getLikes().add(user);
         post.setLikesCount(post.getLikesCount() + 1);
         Post savedPost = postRepository.save(post);
+
+        CompletableFuture.runAsync(() -> {
+            notificationService.createLikeNotification(user,post);
+        });
 
         return convertToPostDTO(savedPost);
 

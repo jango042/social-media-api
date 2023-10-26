@@ -11,6 +11,7 @@ import com.jango.socialmediaapi.repository.CommentRepository;
 import com.jango.socialmediaapi.repository.PostRepository;
 import com.jango.socialmediaapi.repository.UserRepository;
 import com.jango.socialmediaapi.service.CommentService;
+import com.jango.socialmediaapi.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -28,6 +30,8 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
+
     @Override
     public CommentResponseDto createComment(CommentDTO commentDto, Long userId, Long postId) throws ServiceException {
         User user = userRepository.findById(userId)
@@ -42,6 +46,9 @@ public class CommentServiceImpl implements CommentService {
 
         Comment savedComment = commentRepository.save(comment);
 
+        CompletableFuture.runAsync(() -> {
+            notificationService.createLikeNotification(user,post);
+        });
         return convertToCommentDTO(savedComment);
     }
 
