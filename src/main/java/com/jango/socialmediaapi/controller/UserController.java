@@ -1,6 +1,7 @@
 package com.jango.socialmediaapi.controller;
 
 import com.jango.socialmediaapi.dto.response.ApiResponse;
+import com.jango.socialmediaapi.dto.response.UserResponseDto;
 import com.jango.socialmediaapi.entity.User;
 import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
@@ -88,6 +89,18 @@ public class UserController {
     public ResponseEntity<ApiResponse<User>> unfollowUser(@PathVariable Long userId, @PathVariable Long unfollowedUserId) throws ServiceException {
         User user = userService.unfollowUser(userId, unfollowedUserId);
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "User unfollowed successfully", user), HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<UserResponseDto>>> searchAndFilterUsers(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "sortOrder", required = false, defaultValue = "asc") String sortOrder
+    ) {
+        List<UserResponseDto> userResponseDtos = userService.searchAndFilterUsers(keyword, sortOrder);
+        ApiResponse<List<UserResponseDto>> response = new ApiResponse<>(
+                HttpStatus.OK.value(), "Users found successfully", userResponseDtos
+        );
+        return ResponseEntity.ok(response);
     }
 
 }

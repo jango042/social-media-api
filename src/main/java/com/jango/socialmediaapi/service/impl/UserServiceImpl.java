@@ -1,5 +1,6 @@
 package com.jango.socialmediaapi.service.impl;
 
+import com.jango.socialmediaapi.dto.response.UserResponseDto;
 import com.jango.socialmediaapi.entity.User;
 import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -128,6 +130,27 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
+    public List<UserResponseDto> searchAndFilterUsers(String keyword, String sortOrder) {
+        List<User> filteredUsers;
+
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            filteredUsers = userRepository.searchAndFilterUsers(keyword);
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            // No need to change the order as the native query handles descending order
+            filteredUsers = userRepository.searchAndFilterUsers(keyword);
+        } else {
+            filteredUsers = userRepository.searchAndFilterUsers(keyword);
+        }
+
+        List<UserResponseDto> userResponseDtos = new ArrayList<>();
+        for (User user : filteredUsers) {
+            userResponseDtos.add(mapUserToUserResponseDto(user));
+        }
+
+        return userResponseDtos;
+    }
+
     private User createUserFromDto(UserDto userRequest) {
         User user = new User();
         user.setUsername(userRequest.getUsername());
@@ -138,5 +161,9 @@ public class UserServiceImpl implements UserService {
     private User getUserById(Long userId) throws ServiceException {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException("User not found with id: " + userId));
+    }
+
+    private UserResponseDto mapUserToUserResponseDto(User user) {
+        return new UserResponseDto(user);
     }
 }
