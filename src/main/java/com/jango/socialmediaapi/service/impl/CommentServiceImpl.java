@@ -1,6 +1,8 @@
 package com.jango.socialmediaapi.service.impl;
 
 import com.jango.socialmediaapi.dto.CommentDTO;
+import com.jango.socialmediaapi.dto.response.CommentResponseDto;
+import com.jango.socialmediaapi.dto.response.UserResponseDto;
 import com.jango.socialmediaapi.entity.Comment;
 import com.jango.socialmediaapi.entity.Post;
 import com.jango.socialmediaapi.entity.User;
@@ -13,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -24,42 +29,76 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     @Override
-    public Comment createComment(CommentDTO commentDto, Long userId, Long postId) throws ServiceException {
+    public CommentResponseDto createComment(CommentDTO commentDto, Long userId, Long postId) throws ServiceException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException("User not found with ID: "+ userId));
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ServiceException("Post not found with ID: " + postId));
+
         Comment comment = new Comment();
         comment.setContent(commentDto.getContent());
         comment.setUser(user);
         comment.setPost(post);
 
-        return commentRepository.save(comment);
+        Comment savedComment = commentRepository.save(comment);
+
+        return convertToCommentDTO(savedComment);
     }
 
     @Override
-    public List<Comment> getAllComments() {
-        return commentRepository.findAll();
+    public List<CommentResponseDto> getAllComments() {
+
+        List<Comment> commentList = commentRepository.findAll();
+        List<CommentResponseDto> commentResponseList = new ArrayList<>();
+        for (Comment comment : commentList) {
+            CommentResponseDto commentResponse = convertToCommentDTO(comment);
+            commentResponseList.add(commentResponse);
+        }
+        return commentResponseList;
     }
 
     @Override
-    public Comment getCommentById(Long commentId) throws ServiceException {
-        return commentRepository.findById(commentId)
+    public CommentResponseDto getCommentById(Long commentId) throws ServiceException {
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ServiceException("Comment not found with ID: " + commentId));
+
+        return convertToCommentDTO(comment);
 
     }
 
     @Override
     public boolean deleteComment(Long commentId) throws ServiceException {
-        Comment existingComment = getCommentById(commentId);
+        Comment existingComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ServiceException("Comment not found with ID: " + commentId));
         commentRepository.delete(existingComment);
         return true;
     }
 
     @Override
-    public Comment updateComment(Long commentId, CommentDTO commentDto) throws ServiceException {
-        Comment existingComment = getCommentById(commentId);
+    public CommentResponseDto updateComment(Long commentId, CommentDTO commentDto) throws ServiceException {
+        Comment existingComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ServiceException("Comment not found with ID: " + commentId));
         existingComment.setContent(commentDto.getContent());
-        return commentRepository.save(existingComment);
+        Comment savedComment = commentRepository.save(existingComment);
+        return convertToCommentDTO(savedComment);
+    }
+
+    public Set<CommentResponseDto> getCommentDTOs(Set<Comment> comments) {
+        Set<CommentResponseDto> commentDTOs = new HashSet<>();
+
+        for (Comment comment : comments) {
+            CommentResponseDto commentDTO = convertToCommentDTO(comment);
+            commentDTOs.add(commentDTO);
+        }
+
+        return commentDTOs;
+    }
+
+    public CommentResponseDto convertToCommentDTO(Comment comment) {
+        CommentResponseDto commentDTO = new CommentResponseDto();
+        commentDTO.setContent(comment.getContent());
+        commentDTO.setId(commentDTO.getId());
+        commentDTO.setUser(new UserResponseDto(comment.getUser()));
+        return commentDTO;
     }
 }

@@ -14,10 +14,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentDTO {
-    private Long id;
     private String content;
-    @CreationTimestamp
-    @JsonFormat(pattern = "yyy-MM-dd HH:mm:ss a")
-    private LocalDateTime creationDate;
-    private UserDto user;
 }

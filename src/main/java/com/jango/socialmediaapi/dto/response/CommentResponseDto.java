@@ -1,6 +1,5 @@
-package com.jango.socialmediaapi.dto;
+package com.jango.socialmediaapi.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostDTO {
-
-    @NotBlank(message = "content is required")
+public class CommentResponseDto {
+    private Long id;
     private String content;
-    private Long userId;
+    private UserResponseDto user;
 }

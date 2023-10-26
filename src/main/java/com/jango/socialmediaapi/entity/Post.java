@@ -1,6 +1,9 @@
 package com.jango.socialmediaapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +19,16 @@ import java.util.Set;
 public class Post extends BaseModel{
 
     @Column(nullable = false, length = 2000)
+    @NotBlank(message = "content is required")
     private String content;
     private Long likesCount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "post")
+    @JsonBackReference
     private Set<Comment> comments = new HashSet<>();
 }

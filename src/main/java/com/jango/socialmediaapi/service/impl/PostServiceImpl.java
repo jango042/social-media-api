@@ -2,6 +2,9 @@ package com.jango.socialmediaapi.service.impl;
 
 import com.jango.socialmediaapi.dto.CommentDTO;
 import com.jango.socialmediaapi.dto.PostDTO;
+import com.jango.socialmediaapi.dto.response.CommentResponseDto;
+import com.jango.socialmediaapi.dto.response.PostResponseDTO;
+import com.jango.socialmediaapi.dto.response.UserResponseDto;
 import com.jango.socialmediaapi.entity.Comment;
 import com.jango.socialmediaapi.entity.Post;
 import com.jango.socialmediaapi.entity.User;
@@ -12,7 +15,9 @@ import com.jango.socialmediaapi.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,35 +25,45 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CommentServiceImpl commentService;
 
 
     @Override
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    public List<PostResponseDTO> getAllPosts() {
+
+        List<Post> postList = postRepository.findAll();
+        return postList.stream()
+                .map(this::convertToPostDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Post getPost(Long postId) throws ServiceException {
-        return getPostById(postId);
+    public PostResponseDTO getPost(Long postId) throws ServiceException {
+        Post post = getPostById(postId);
+        return convertToPostDTO(post);
     }
 
     @Override
-    public Post createPost(PostDTO postDto, Long userId) throws ServiceException {
-        User user = getUserById(userId);
+    public PostResponseDTO createPost(PostDTO postDto) throws ServiceException {
+        User user = getUserById(postDto.getUserId());
 
         Post post = new Post();
         post.setContent(postDto.getContent());
-        post.setLikesCount(postDto.getLikesCount());
+        post.setLikesCount(0L);
         post.setUser(user);
 
-        return postRepository.save(post);
+        Post savedPost = postRepository.save(post);
+
+        return convertToPostDTO(savedPost);
     }
 
     @Override
-    public Post updatePost(Long postId, PostDTO postDto) throws ServiceException {
+    public PostResponseDTO updatePost(Long postId, PostDTO postDto) throws ServiceException {
         Post existingPost = getPostById(postId);
         existingPost.setContent(postDto.getContent());
-        return postRepository.save(existingPost);
+        Post savedPost =  postRepository.save(existingPost);
+
+        return convertToPostDTO(savedPost);
     }
 
     @Override
@@ -58,18 +73,18 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post likePost(Long postId, Long userId) throws ServiceException {
+    public PostResponseDTO likePost(Long postId, Long userId) throws ServiceException {
         Post post = getPostById(postId);
         User user = getUserById(userId);
 
         post.setLikesCount(post.getLikesCount() + 1);
-        postRepository.save(post);
+        Post savedPost =  postRepository.save(post);
 
-        return post;
+        return convertToPostDTO(savedPost);
     }
 
     @Override
-    public Comment commentOnPost(Long postId, Long userId, CommentDTO commentDto) throws ServiceException {
+    public CommentResponseDto commentOnPost(Long postId, Long userId, CommentDTO commentDto) throws ServiceException {
         Post post = getPostById(postId);
         User user = getUserById(userId);
 
@@ -80,7 +95,7 @@ public class PostServiceImpl implements PostService {
         post.getComments().add(comment);
         postRepository.save(post);
 
-        return comment;
+        return commentService.convertToCommentDTO(comment);
     }
 
     private Post getPostById(Long postId) throws ServiceException {
@@ -91,6 +106,16 @@ public class PostServiceImpl implements PostService {
     private User getUserById(Long userId) throws ServiceException {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException("User not found with id: " + userId));
+    }
+
+    private PostResponseDTO convertToPostDTO(Post post) {
+        // Convert the Post entity to a PostDTO
+        PostResponseDTO postDTO = new PostResponseDTO();
+        postDTO.setContent(post.getContent());
+        postDTO.setLikesCount(post.getLikesCount());
+        postDTO.setUser(new UserResponseDto(post.getUser()));
+        postDTO.setComments(commentService.getCommentDTOs(post.getComments()));
+        return postDTO;
     }
 
 }
