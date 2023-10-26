@@ -24,28 +24,23 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-
-
-    public User getUser(Long userId) throws ServiceException {
-        try {
-            User user = getUserById(userId);
-            userRepository.save(user);
-            return user;
-        } catch (ConstraintViolationException ex) {
-            Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-            String errorMessage = violations.stream()
-                    .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
-                    .collect(Collectors.joining("; "));
-            throw new ServiceException(errorMessage);
-        }
+    public List<UserResponseDto> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(this::mapUserToUserResponseDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User createUser(UserDto userRequest) throws ServiceException {
+    public UserResponseDto getUserById(Long userId) throws ServiceException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException("User not found with id: " + userId));
+        return mapUserToUserResponseDto(user);
+    }
+
+
+    @Override
+    public UserResponseDto createUser(UserDto userRequest) throws ServiceException {
         if (userRepository.existsByUsername(userRequest.getUsername())) {
             throw new ServiceException("Username already exists.");
         }
@@ -54,20 +49,23 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = createUserFromDto(userRequest);
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        return mapUserToUserResponseDto(savedUser);
     }
 
     @Override
-    public User updateUser(UserDto userRequest, Long id) throws ServiceException {
+    public UserResponseDto updateUser(UserDto userRequest, Long id) throws ServiceException {
         try {
-            User existingUser = getUserById(id);
+            User existingUser = getUser(id);
             if (existingUser == null) {
                 throw new ServiceException("User does not exist.");
             }
             existingUser.setProfilePicture(userRequest.getProfilePicture());
             existingUser.setUsername(userRequest.getUsername());
             existingUser.setEmail(userRequest.getEmail());
-            return userRepository.save(existingUser);
+            User updatedUser = userRepository.save(existingUser);
+            return mapUserToUserResponseDto(updatedUser);
         } catch (ConstraintViolationException ex) {
             Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
             String errorMessage = violations.stream()
@@ -75,13 +73,12 @@ public class UserServiceImpl implements UserService {
                     .collect(Collectors.joining("; "));
             throw new ServiceException(errorMessage);
         }
-
     }
 
     @Override
     public void deleteUser(Long userId) throws ServiceException {
         try {
-            User user = getUserById(userId);
+            User user = getUser(userId);
             userRepository.delete(user);
         } catch (ServiceException e) {
             throw new ServiceException("User deletion failed");
@@ -90,18 +87,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByUsername(String username) throws ServiceException {
+    public UserResponseDto findUserByUsername(String username) throws ServiceException {
         User user = userRepository.findUserByUsername(username).orElse(null);
         if (user == null) {
             throw new ServiceException("User does not exist.");
         }
-        return user;
+        return mapUserToUserResponseDto(user);
     }
 
     @Override
-    public User followUser(Long userId, Long followedUserId) throws ServiceException {
-        User user = getUserById(userId);
-        User followedUser = getUserById(followedUserId);
+    public UserResponseDto followUser(Long userId, Long followedUserId) throws ServiceException {
+        User user = getUser(userId);
+        User followedUser = getUser(followedUserId);
 
         // Check if the user is already following the followedUser
         if (user.getFollowing().contains(followedUser)) {
@@ -111,13 +108,13 @@ public class UserServiceImpl implements UserService {
         user.getFollowing().add(followedUser);
         userRepository.save(user);
 
-        return user;
+        return mapUserToUserResponseDto(user);
     }
 
     @Override
-    public User unfollowUser(Long userId, Long unfollowedUserId) throws ServiceException {
-        User user = getUserById(userId);
-        User unfollowedUser = getUserById(unfollowedUserId);
+    public UserResponseDto unfollowUser(Long userId, Long unfollowedUserId) throws ServiceException {
+        User user = getUser(userId);
+        User unfollowedUser = getUser(unfollowedUserId);
 
         // Check if the user is already following the unfollowedUser
         if (!user.getFollowing().contains(unfollowedUser)) {
@@ -127,7 +124,7 @@ public class UserServiceImpl implements UserService {
         user.getFollowing().remove(unfollowedUser);
         userRepository.save(user);
 
-        return user;
+        return mapUserToUserResponseDto(user);
     }
 
     @Override
@@ -158,7 +155,7 @@ public class UserServiceImpl implements UserService {
         user.setProfilePicture(userRequest.getProfilePicture());
         return user;
     }
-    private User getUserById(Long userId) throws ServiceException {
+    private User getUser(Long userId) throws ServiceException {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException("User not found with id: " + userId));
     }

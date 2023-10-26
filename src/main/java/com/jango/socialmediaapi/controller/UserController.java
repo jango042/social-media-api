@@ -23,35 +23,35 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        ApiResponse<List<User>> response = new ApiResponse<>(HttpStatus.OK.value(), "Users retrieved successfully", users);
+    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAllUsers() {
+        List<UserResponseDto> users = userService.getAllUsers();
+        ApiResponse<List<UserResponseDto>> response = new ApiResponse<>(HttpStatus.OK.value(), "Users retrieved successfully", users);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long userId) throws ServiceException {
+    public ResponseEntity<ApiResponse<UserResponseDto>> getUserById(@PathVariable Long userId) throws ServiceException {
         try {
-            User user = userService.getUser(userId);
-            ApiResponse<User> response = new ApiResponse<>(HttpStatus.OK.value(), "User retrieved successfully", user);
+            UserResponseDto user = userService.getUserById(userId);
+            ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "User retrieved successfully", user);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ServiceException e) {
-            ApiResponse<User> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
+            ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@Validated @RequestBody UserDto user) throws ServiceException {
-        User createdUser = userService.createUser(user);
-        ApiResponse<User> response = new ApiResponse<>(200, "User created successfully", createdUser);
+    public ResponseEntity<ApiResponse<UserResponseDto>> createUser(@Validated @RequestBody UserDto user) throws ServiceException {
+        UserResponseDto createdUser = userService.createUser(user);
+        ApiResponse<UserResponseDto> response = new ApiResponse<>(200, "User created successfully", createdUser);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long userId, @RequestBody @Valid UserDto userDto) throws ServiceException {
-        User updatedUser = userService.updateUser(userDto, userId);
-        ApiResponse<User> response = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
+    public ResponseEntity<ApiResponse<UserResponseDto>> updateUser(@PathVariable Long userId, @RequestBody @Valid UserDto userDto) throws ServiceException {
+        UserResponseDto updatedUser = userService.updateUser(userDto, userId);
+        ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -68,26 +68,26 @@ public class UserController {
     }
 
     @GetMapping("/username/{username}")
-    public ResponseEntity<ApiResponse<User>> findUserByUsername(@PathVariable String username) throws ServiceException {
+    public ResponseEntity<ApiResponse<UserResponseDto>> findUserByUsername(@PathVariable String username) throws ServiceException {
         try {
-            User user = userService.findUserByUsername(username);
-            ApiResponse<User> response = new ApiResponse<>(HttpStatus.OK.value(), "User retrieved successfully", user);
+            UserResponseDto user = userService.findUserByUsername(username);
+            ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "User retrieved successfully", user);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ServiceException e) {
-            ApiResponse<User> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
+            ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("/{userId}/follow/{followedUserId}")
-    public ResponseEntity<ApiResponse<User>> followUser(@PathVariable Long userId, @PathVariable Long followedUserId) throws ServiceException {
-        User user = userService.followUser(userId, followedUserId);
+    public ResponseEntity<ApiResponse<UserResponseDto>> followUser(@PathVariable Long userId, @PathVariable Long followedUserId) throws ServiceException {
+        UserResponseDto user = userService.followUser(userId, followedUserId);
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "User followed successfully", user), HttpStatus.OK);
     }
 
     @PostMapping("/{userId}/unfollow/{unfollowedUserId}")
-    public ResponseEntity<ApiResponse<User>> unfollowUser(@PathVariable Long userId, @PathVariable Long unfollowedUserId) throws ServiceException {
-        User user = userService.unfollowUser(userId, unfollowedUserId);
+    public ResponseEntity<ApiResponse<UserResponseDto>> unfollowUser(@PathVariable Long userId, @PathVariable Long unfollowedUserId) throws ServiceException {
+        UserResponseDto user = userService.unfollowUser(userId, unfollowedUserId);
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "User unfollowed successfully", user), HttpStatus.OK);
     }
 

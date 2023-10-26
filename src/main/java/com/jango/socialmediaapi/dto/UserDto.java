@@ -22,6 +22,4 @@ public class UserDto {
     @Email(message = "Invalid email format")
     private String email;
     private String profilePicture;
-    private Set<UserDto> followers;
-    private Set<UserDto> following;
 }

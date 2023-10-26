@@ -1,0 +1,122 @@
+[
+  {
+    "username": "user1",
+    "email": "user1@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user2",
+    "email": "user2@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user3",
+    "email": "user3@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user4",
+    "email": "user4@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user5",
+    "email": "user5@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user6",
+    "email": "user6@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user7",
+    "email": "user7@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user8",
+    "email": "user8@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user9",
+    "email": "user9@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user10",
+    "email": "user10@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user11",
+    "email": "user11@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user12",
+    "email": "user12@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user13",
+    "email": "user13@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user14",
+    "email": "user14@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  },
+  {
+    "username": "user15",
+    "email": "user15@example.com",
+    "profilePicture": "",
+    "followers": [],
+    "following": [],
+    "likedPosts": []
+  }
+]

@@ -8,19 +8,19 @@ import com.jango.socialmediaapi.exceptions.ServiceException;
 import java.util.List;
 
 public interface UserService {
-    List<User> getAllUsers();
+    List<UserResponseDto> getAllUsers();
 
-    User getUser(Long userId) throws ServiceException;
+    UserResponseDto getUserById(Long userId) throws ServiceException;
 
-    User createUser(UserDto user) throws ServiceException;
+    UserResponseDto createUser(UserDto userRequest) throws ServiceException;
 
-    User updateUser(UserDto user, Long id) throws ServiceException;
+    UserResponseDto updateUser(UserDto userRequest, Long id) throws ServiceException;
 
     void deleteUser(Long userId) throws ServiceException;
 
-    User findUserByUsername(String username) throws ServiceException;
-    User followUser(Long userId, Long followedUserId) throws ServiceException;
-    User unfollowUser(Long userId, Long unfollowedUserId) throws ServiceException;
+    UserResponseDto findUserByUsername(String username) throws ServiceException;
+    UserResponseDto followUser(Long userId, Long followedUserId) throws ServiceException;
+    UserResponseDto unfollowUser(Long userId, Long unfollowedUserId) throws ServiceException;
     List<UserResponseDto> searchAndFilterUsers(String keyword, String sortOrder);
 
     }
