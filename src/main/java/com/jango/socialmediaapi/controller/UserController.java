@@ -5,9 +5,11 @@ import com.jango.socialmediaapi.entity.User;
 import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,33 +41,28 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<User>> createUser(@RequestBody UserDto userDto) throws ServiceException {
-        User user = userService.createUser(userDto);
-        ApiResponse<User> response = new ApiResponse<>(HttpStatus.CREATED.value(), "User created successfully", user);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<User>> createUser(@Validated @RequestBody UserDto user) throws ServiceException {
+        User createdUser = userService.createUser(user);
+        ApiResponse<User> response = new ApiResponse<>(200, "User created successfully", createdUser);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
-        try {
-            User updatedUser = userService.updateUser(userDto, userId);
-            ApiResponse<User> response = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (ServiceException e) {
-            ApiResponse<User> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long userId, @RequestBody @Valid UserDto userDto) throws ServiceException {
+        User updatedUser = userService.updateUser(userDto, userId);
+        ApiResponse<User> response = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<String>> deleteUser(@PathVariable Long userId) {
         try {
             userService.deleteUser(userId);
-            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.NO_CONTENT.value(), "User deleted successfully", null);
-            return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
-        } catch (ServiceException e) {
-            ApiResponse<Void> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            ApiResponse<String> response = new ApiResponse<>(200, "User deleted successfully", null);
+            return ResponseEntity.ok(response);
+        } catch (ServiceException ex) {
+            ApiResponse<String> response = new ApiResponse<>(400, ex.getMessage(), null);
+            return ResponseEntity.badRequest().body(response);
         }
     }
 

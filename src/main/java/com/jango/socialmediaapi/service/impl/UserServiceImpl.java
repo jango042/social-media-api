@@ -5,11 +5,15 @@ import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.repository.UserRepository;
 import com.jango.socialmediaapi.service.UserService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,9 +26,20 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
+
+
     public User getUser(Long userId) throws ServiceException {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new ServiceException("User not found"));
+        try {
+            User user = getUserById(userId);
+            userRepository.save(user);
+            return user;
+        } catch (ConstraintViolationException ex) {
+            Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+            String errorMessage = violations.stream()
+                    .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                    .collect(Collectors.joining("; "));
+            throw new ServiceException(errorMessage);
+        }
     }
 
     @Override
@@ -42,19 +57,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(UserDto userRequest, Long id) throws ServiceException {
-        User existingUser = getUserById(id);
-        if (existingUser == null) {
-            throw new ServiceException("User does not exist.");
+        try {
+            User existingUser = getUserById(id);
+            if (existingUser == null) {
+                throw new ServiceException("User does not exist.");
+            }
+            existingUser.setProfilePicture(userRequest.getProfilePicture());
+            existingUser.setUsername(userRequest.getUsername());
+            existingUser.setEmail(userRequest.getEmail());
+            return userRepository.save(existingUser);
+        } catch (ConstraintViolationException ex) {
+            Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+            String errorMessage = violations.stream()
+                    .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                    .collect(Collectors.joining("; "));
+            throw new ServiceException(errorMessage);
         }
-        User user = createUserFromDto(userRequest);
-        return userRepository.save(user);
+
     }
 
     @Override
     public void deleteUser(Long userId) throws ServiceException {
-        User user = getUserById(userId);
+        try {
+            User user = getUserById(userId);
+            userRepository.delete(user);
+        } catch (ServiceException e) {
+            throw new ServiceException("User deletion failed");
+        }
 
-        userRepository.delete(user);
     }
 
     @Override

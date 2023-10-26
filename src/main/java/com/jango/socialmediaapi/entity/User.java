@@ -1,6 +1,9 @@
 package com.jango.socialmediaapi.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,9 +22,12 @@ import java.util.Set;
 public class User extends BaseModel{
 
     @Column(unique = true, nullable = false, length = 50)
+    @NotBlank(message = "Username is required")
+    @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Username should contain only alphabets and numbers")
     private String username;
 
     @Column(unique = true, nullable = false, length = 100)
+    @Email(message = "Invalid email format")
     private String email;
 
     private String profilePicture;
