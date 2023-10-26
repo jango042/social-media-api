@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final ModelMapper modelMapper;
     private final UserRepository userRepository;
 
 
@@ -52,7 +51,6 @@ public class PostServiceImpl implements PostService {
         Post existingPost = postRepository.findById(postId)
                 .orElseThrow(() -> new ServiceException("Post not found with ID: " + postId));
         existingPost.setContent(postDto.getContent());
-        existingPost.setLikesCount(postDto.getLikesCount());
         return postRepository.save(existingPost);
     }
 
