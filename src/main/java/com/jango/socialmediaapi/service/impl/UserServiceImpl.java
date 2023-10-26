@@ -22,8 +22,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-    @Override
-    public User getUserById(Long userId) throws ServiceException {
+    public User getUser(Long userId) throws ServiceException {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException("User not found"));
     }
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(UserDto userRequest, Long id) throws ServiceException {
-        User existingUser = userRepository.findById(id).orElse(null);
+        User existingUser = getUserById(id);
         if (existingUser == null) {
             throw new ServiceException("User does not exist.");
         }
@@ -53,11 +52,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long userId) throws ServiceException {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            throw new ServiceException("User does not exist.");
-        }
-        userRepository.deleteById(userId);
+        User user = getUserById(userId);
+
+        userRepository.delete(user);
     }
 
     @Override
@@ -69,11 +66,37 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
+    public User followUser(Long userId, Long followedUserId) throws ServiceException {
+        User user = getUserById(userId);
+        User followedUser = getUserById(followedUserId);
+
+        user.getFollowing().add(followedUser);
+        userRepository.save(user);
+
+        return user;
+    }
+
+    @Override
+    public User unfollowUser(Long userId, Long unfollowedUserId) throws ServiceException {
+        User user = getUserById(userId);
+        User unfollowedUser = getUserById(unfollowedUserId);
+
+        user.getFollowing().remove(unfollowedUser);
+        userRepository.save(user);
+
+        return user;
+    }
+
     private User createUserFromDto(UserDto userRequest) {
         User user = new User();
         user.setUsername(userRequest.getUsername());
         user.setEmail(userRequest.getEmail());
         user.setProfilePicture(userRequest.getProfilePicture());
         return user;
+    }
+    private User getUserById(Long userId) throws ServiceException {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException("User not found with id: " + userId));
     }
 }

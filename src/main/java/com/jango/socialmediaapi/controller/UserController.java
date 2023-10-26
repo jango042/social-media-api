@@ -29,7 +29,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long userId) throws ServiceException {
         try {
-            User user = userService.getUserById(userId);
+            User user = userService.getUser(userId);
             ApiResponse<User> response = new ApiResponse<>(HttpStatus.OK.value(), "User retrieved successfully", user);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ServiceException e) {
@@ -79,6 +79,18 @@ public class UserController {
             ApiResponse<User> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PostMapping("/{userId}/follow/{followedUserId}")
+    public ResponseEntity<ApiResponse<User>> followUser(@PathVariable Long userId, @PathVariable Long followedUserId) throws ServiceException {
+        User user = userService.followUser(userId, followedUserId);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "User followed successfully", user), HttpStatus.OK);
+    }
+
+    @PostMapping("/{userId}/unfollow/{unfollowedUserId}")
+    public ResponseEntity<ApiResponse<User>> unfollowUser(@PathVariable Long userId, @PathVariable Long unfollowedUserId) throws ServiceException {
+        User user = userService.unfollowUser(userId, unfollowedUserId);
+        return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "User unfollowed successfully", user), HttpStatus.OK);
     }
 
 }
