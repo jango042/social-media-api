@@ -1,7 +1,7 @@
 package com.jango.socialmediaapi.service.impl;
 
 import com.jango.socialmediaapi.entity.User;
-import com.jango.socialmediaapi.entity.UserDto;
+import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.repository.UserRepository;
 import com.jango.socialmediaapi.service.UserService;
@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();

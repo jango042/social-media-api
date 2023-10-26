@@ -1,7 +1,7 @@
 package com.jango.socialmediaapi.service;
 
 import com.jango.socialmediaapi.entity.User;
-import com.jango.socialmediaapi.entity.UserDto;
+import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 
 import java.util.List;

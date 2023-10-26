@@ -1,5 +1,6 @@
-package com.jango.socialmediaapi.entity;
+package com.jango.socialmediaapi.dto;
 
+import com.jango.socialmediaapi.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
