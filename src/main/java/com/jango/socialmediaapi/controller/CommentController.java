@@ -3,19 +3,15 @@ package com.jango.socialmediaapi.controller;
 import com.jango.socialmediaapi.dto.CommentDTO;
 import com.jango.socialmediaapi.dto.response.ApiResponse;
 import com.jango.socialmediaapi.dto.response.CommentResponseDto;
-import com.jango.socialmediaapi.entity.Comment;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.service.CommentService;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController

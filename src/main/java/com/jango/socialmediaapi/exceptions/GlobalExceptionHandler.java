@@ -1,12 +1,13 @@
 package com.jango.socialmediaapi.exceptions;
 
 import com.jango.socialmediaapi.dto.response.ApiResponse;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

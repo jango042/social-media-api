@@ -6,12 +6,12 @@ import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.repository.UserRepository;
 import com.jango.socialmediaapi.service.UserService;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
