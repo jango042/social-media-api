@@ -1,20 +1,33 @@
 package com.jango.socialmediaapi.service.impl;
 
+import com.jango.socialmediaapi.dto.LoginRequest;
+import com.jango.socialmediaapi.dto.response.JwtResponse;
 import com.jango.socialmediaapi.dto.response.UserResponseDto;
+import com.jango.socialmediaapi.entity.Role;
 import com.jango.socialmediaapi.entity.User;
 import com.jango.socialmediaapi.dto.UserDto;
+import com.jango.socialmediaapi.enums.RoleType;
 import com.jango.socialmediaapi.exceptions.ServiceException;
+import com.jango.socialmediaapi.repository.RoleRepository;
 import com.jango.socialmediaapi.repository.UserRepository;
+import com.jango.socialmediaapi.security.UserDetailsImpl;
 import com.jango.socialmediaapi.service.UserService;
+import com.jango.socialmediaapi.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import org.springframework.security.core.GrantedAuthority;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +36,10 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
     @Override
     public List<UserResponseDto> getAllUsers() {
         List<User> users = userRepository.findAll();
@@ -41,17 +58,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto createUser(UserDto userRequest) throws ServiceException {
-        if (userRepository.existsByUsername(userRequest.getUsername())) {
-            throw new ServiceException("Username already exists.");
-        }
-        if (userRepository.existsByEmail(userRequest.getEmail())) {
-            throw new ServiceException("Email already exists.");
+        try {
+            if (userRepository.existsByUsername(userRequest.getUsername())) {
+                throw new ServiceException("Username already exists.");
+            }
+            if (userRepository.existsByEmail(userRequest.getEmail())) {
+                throw new ServiceException("Email already exists.");
+            }
+
+            User user = createUserFromDto(userRequest);
+            User savedUser = userRepository.save(user);
+
+            return mapUserToUserResponseDto(savedUser);
+        }catch (ConstraintViolationException ex) {
+            Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+            String errorMessage = violations.stream()
+                    .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                    .collect(Collectors.joining("; "));
+            throw new ServiceException(errorMessage);
         }
 
-        User user = createUserFromDto(userRequest);
-        User savedUser = userRepository.save(user);
-
-        return mapUserToUserResponseDto(savedUser);
     }
 
     @Override
@@ -148,10 +174,35 @@ public class UserServiceImpl implements UserService {
         return userResponseDtos;
     }
 
+    public JwtResponse authenticateUser(LoginRequest loginRequest) throws ServiceException {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toList());
+            return new JwtResponse(jwt, roles);
+        } catch (AuthenticationException e) {
+            log.error("Authentication failed: {}", e.getMessage());
+            throw new ServiceException("Invalid username or password");
+        }
+    }
+
     private User createUserFromDto(UserDto userRequest) {
+        Optional<Role> role = roleRepository.findByName(RoleType.USER);
+
         User user = new User();
         user.setUsername(userRequest.getUsername());
         user.setEmail(userRequest.getEmail());
+        if (role.isPresent()) {
+            Set<Role> roleSet = new HashSet<>();
+            roleSet.add(role.get());
+            user.setRoles(roleSet);
+        }
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setProfilePicture(userRequest.getProfilePicture());
         return user;
     }
@@ -163,4 +214,6 @@ public class UserServiceImpl implements UserService {
     private UserResponseDto mapUserToUserResponseDto(User user) {
         return new UserResponseDto(user);
     }
+
+
 }

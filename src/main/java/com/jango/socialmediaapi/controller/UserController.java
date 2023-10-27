@@ -1,25 +1,51 @@
 package com.jango.socialmediaapi.controller;
 
+import com.jango.socialmediaapi.dto.LoginRequest;
 import com.jango.socialmediaapi.dto.response.ApiResponse;
+import com.jango.socialmediaapi.dto.response.JwtResponse;
 import com.jango.socialmediaapi.dto.response.UserResponseDto;
 import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
+import com.jango.socialmediaapi.repository.RoleRepository;
+import com.jango.socialmediaapi.repository.UserRepository;
+import com.jango.socialmediaapi.security.UserDetailsImpl;
 import com.jango.socialmediaapi.service.UserService;
+import com.jango.socialmediaapi.utils.JwtUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
 @AllArgsConstructor
+@Slf4j
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
+
+    private final AuthenticationManager authenticationManager;
+
+    private  final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
+
+    private final PasswordEncoder encoder;
+
+    private final JwtUtils jwtUtils;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAllUsers() {
@@ -43,7 +69,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponseDto>> createUser(@Validated @RequestBody UserDto user) throws ServiceException {
         UserResponseDto createdUser = userService.createUser(user);
-        ApiResponse<UserResponseDto> response = new ApiResponse<>(200, "User created successfully", createdUser);
+        ApiResponse<UserResponseDto> response = new ApiResponse<>(201, "User created successfully", createdUser);
         return ResponseEntity.ok(response);
     }
 
@@ -102,4 +128,15 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<JwtResponse>> login(@RequestBody LoginRequest loginRequest) throws ServiceException {
+        JwtResponse jwtResponse = userService.authenticateUser(loginRequest);
+        return ResponseEntity.ok(new ApiResponse<>(200, "Authentication successful", jwtResponse));
+    }
+
+
+
+    private JwtResponse getLoginResponse(String jwt, List<String> roles) {
+        return new JwtResponse(jwt, roles);
+    }
 }

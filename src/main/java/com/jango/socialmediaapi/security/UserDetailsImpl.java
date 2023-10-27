@@ -8,71 +8,97 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final String email;
+    private Long id;
 
-  @JsonIgnore
-  private final String password;
+    private String username;
 
-  private final Collection<? extends GrantedAuthority> authorities;
+    private String email;
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return authorities;
-  }
+    @JsonIgnore
+    private String password;
 
-  @Override
-  public String getPassword() {
-    return password;
-  }
+    private Collection<? extends GrantedAuthority> authorities;
 
-  @Override
-  public String getUsername() {
-    return email;
-  }
+    public UserDetailsImpl(Long id, String username, String email, String password,
+                           Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.authorities = authorities;
+    }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
+    public static UserDetailsImpl build(User user) {
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
+        return new UserDetailsImpl(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getPassword(),
+                authorities);
+    }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
 
-  @Override
-  public boolean isEnabled() {
-    return true;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public UserDetailsImpl(String email, String password,
-      Collection<? extends GrantedAuthority> authorities) {
-    this.email = email;
-    this.password = password;
-    this.authorities = authorities;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public static UserDetailsImpl build(User users) {
-    List<GrantedAuthority> authorities = users.getRoles().stream()
-        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-        .collect(Collectors.toList());
+    @Override
+    public String getPassword() {
+        return password;
+    }
 
-    return new UserDetailsImpl(
-        users.getUsername(),
-        users.getPassword(),
-        authorities);
-  }
+    @Override
+    public String getUsername() {
+        return username;
+    }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        UserDetailsImpl user = (UserDetailsImpl) o;
+        return Objects.equals(id, user.id);
+    }
 
 }

@@ -5,8 +5,6 @@ import com.jango.socialmediaapi.dto.PostDTO;
 import com.jango.socialmediaapi.dto.response.ApiResponse;
 import com.jango.socialmediaapi.dto.response.CommentResponseDto;
 import com.jango.socialmediaapi.dto.response.PostResponseDTO;
-import com.jango.socialmediaapi.entity.Comment;
-import com.jango.socialmediaapi.entity.Post;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.service.PostService;
 import lombok.AllArgsConstructor;
@@ -19,7 +17,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/posts")
+@RequestMapping("/api/posts")
 public class PostController {
 
     private final PostService postService;

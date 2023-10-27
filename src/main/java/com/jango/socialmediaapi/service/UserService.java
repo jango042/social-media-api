@@ -1,5 +1,7 @@
 package com.jango.socialmediaapi.service;
 
+import com.jango.socialmediaapi.dto.LoginRequest;
+import com.jango.socialmediaapi.dto.response.JwtResponse;
 import com.jango.socialmediaapi.dto.response.UserResponseDto;
 import com.jango.socialmediaapi.entity.User;
 import com.jango.socialmediaapi.dto.UserDto;
@@ -22,5 +24,6 @@ public interface UserService {
     UserResponseDto followUser(Long userId, Long followedUserId) throws ServiceException;
     UserResponseDto unfollowUser(Long userId, Long unfollowedUserId) throws ServiceException;
     List<UserResponseDto> searchAndFilterUsers(String keyword, String sortOrder);
+    JwtResponse authenticateUser(LoginRequest loginRequest) throws ServiceException;
 
     }

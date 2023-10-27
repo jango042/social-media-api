@@ -20,5 +20,7 @@ public class UserDto {
     private String username;
     @Email(message = "Invalid email format")
     private String email;
+    @NotBlank(message = "password is required")
+    private String password;
     private String profilePicture;
 }

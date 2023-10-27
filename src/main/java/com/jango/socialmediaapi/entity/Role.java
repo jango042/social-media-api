@@ -1,19 +1,20 @@
 package com.jango.socialmediaapi.entity;
 
 import com.jango.socialmediaapi.enums.RoleType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
 
-@Entity
+
 @Table(name = "role")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Entity
 public class Role {
 
     @Id
