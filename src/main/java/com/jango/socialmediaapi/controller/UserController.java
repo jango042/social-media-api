@@ -5,10 +5,10 @@ import com.jango.socialmediaapi.dto.response.ApiResponse;
 import com.jango.socialmediaapi.dto.response.JwtResponse;
 import com.jango.socialmediaapi.dto.response.UserResponseDto;
 import com.jango.socialmediaapi.dto.UserDto;
+import com.jango.socialmediaapi.dto.response.UserResponseWrapper;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.repository.RoleRepository;
 import com.jango.socialmediaapi.repository.UserRepository;
-import com.jango.socialmediaapi.security.UserDetailsImpl;
 import com.jango.socialmediaapi.service.UserService;
 import com.jango.socialmediaapi.utils.JwtUtils;
 import lombok.AllArgsConstructor;
@@ -16,18 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -48,35 +42,35 @@ public class UserController {
     private final JwtUtils jwtUtils;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAllUsers() {
-        List<UserResponseDto> users = userService.getAllUsers();
-        ApiResponse<List<UserResponseDto>> response = new ApiResponse<>(HttpStatus.OK.value(), "Users retrieved successfully", users);
+    public ResponseEntity<ApiResponse<List<UserResponseWrapper>>> getAllUsers() {
+        List<UserResponseWrapper> users = userService.getAllUsers();
+        ApiResponse<List<UserResponseWrapper>> response = new ApiResponse<>(HttpStatus.OK.value(), "Users retrieved successfully", users);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserResponseDto>> getUserById(@PathVariable Long userId) throws ServiceException {
+    public ResponseEntity<ApiResponse<UserResponseWrapper>> getUserById(@PathVariable Long userId) throws ServiceException {
         try {
-            UserResponseDto user = userService.getUserById(userId);
-            ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "User retrieved successfully", user);
+            UserResponseWrapper user = userService.getUserById(userId);
+            ApiResponse<UserResponseWrapper> response = new ApiResponse<>(HttpStatus.OK.value(), "User retrieved successfully", user);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ServiceException e) {
-            ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
+            ApiResponse<UserResponseWrapper> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "User not found", null);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponseDto>> createUser(@Validated @RequestBody UserDto user) throws ServiceException {
-        UserResponseDto createdUser = userService.createUser(user);
-        ApiResponse<UserResponseDto> response = new ApiResponse<>(201, "User created successfully", createdUser);
+    public ResponseEntity<ApiResponse<UserResponseWrapper>> createUser(@Validated @RequestBody UserDto user) throws ServiceException {
+        UserResponseWrapper createdUser = userService.createUser(user);
+        ApiResponse<UserResponseWrapper> response = new ApiResponse<>(201, "User created successfully", createdUser);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<UserResponseDto>> updateUser(@PathVariable Long userId, @RequestBody @Valid UserDto userDto) throws ServiceException {
-        UserResponseDto updatedUser = userService.updateUser(userDto, userId);
-        ApiResponse<UserResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
+    public ResponseEntity<ApiResponse<UserResponseWrapper>> updateUser(@PathVariable Long userId, @RequestBody @Valid UserDto userDto) throws ServiceException {
+        UserResponseWrapper updatedUser = userService.updateUser(userDto, userId);
+        ApiResponse<UserResponseWrapper> response = new ApiResponse<>(HttpStatus.OK.value(), "User updated successfully", updatedUser);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -136,7 +130,4 @@ public class UserController {
 
 
 
-    private JwtResponse getLoginResponse(String jwt, List<String> roles) {
-        return new JwtResponse(jwt, roles);
-    }
 }

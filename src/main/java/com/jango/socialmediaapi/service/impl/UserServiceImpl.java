@@ -3,6 +3,7 @@ package com.jango.socialmediaapi.service.impl;
 import com.jango.socialmediaapi.dto.LoginRequest;
 import com.jango.socialmediaapi.dto.response.JwtResponse;
 import com.jango.socialmediaapi.dto.response.UserResponseDto;
+import com.jango.socialmediaapi.dto.response.UserResponseWrapper;
 import com.jango.socialmediaapi.entity.Role;
 import com.jango.socialmediaapi.entity.User;
 import com.jango.socialmediaapi.dto.UserDto;
@@ -40,24 +41,26 @@ public class UserServiceImpl implements UserService {
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+
+
     @Override
-    public List<UserResponseDto> getAllUsers() {
+    public List<UserResponseWrapper> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
-                .map(this::mapUserToUserResponseDto)
+                .map(this::mapUserToUserResponseWrapper)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserResponseDto getUserById(Long userId) throws ServiceException {
+    public UserResponseWrapper getUserById(Long userId) throws ServiceException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException("User not found with id: " + userId));
-        return mapUserToUserResponseDto(user);
+        return mapUserToUserResponseWrapper(user);
     }
 
 
     @Override
-    public UserResponseDto createUser(UserDto userRequest) throws ServiceException {
+    public UserResponseWrapper createUser(UserDto userRequest) throws ServiceException {
         try {
             if (userRepository.existsByUsername(userRequest.getUsername())) {
                 throw new ServiceException("Username already exists.");
@@ -69,19 +72,18 @@ public class UserServiceImpl implements UserService {
             User user = createUserFromDto(userRequest);
             User savedUser = userRepository.save(user);
 
-            return mapUserToUserResponseDto(savedUser);
-        }catch (ConstraintViolationException ex) {
+            return mapUserToUserResponseWrapper(savedUser);
+        } catch (ConstraintViolationException ex) {
             Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
             String errorMessage = violations.stream()
                     .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
                     .collect(Collectors.joining("; "));
             throw new ServiceException(errorMessage);
         }
-
     }
 
     @Override
-    public UserResponseDto updateUser(UserDto userRequest, Long id) throws ServiceException {
+    public UserResponseWrapper updateUser(UserDto userRequest, Long id) throws ServiceException {
         try {
             User existingUser = getUser(id);
             if (existingUser == null) {
@@ -91,7 +93,7 @@ public class UserServiceImpl implements UserService {
             existingUser.setUsername(userRequest.getUsername());
             existingUser.setEmail(userRequest.getEmail());
             User updatedUser = userRepository.save(existingUser);
-            return mapUserToUserResponseDto(updatedUser);
+            return mapUserToUserResponseWrapper(updatedUser);
         } catch (ConstraintViolationException ex) {
             Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
             String errorMessage = violations.stream()
@@ -215,5 +217,19 @@ public class UserServiceImpl implements UserService {
         return new UserResponseDto(user);
     }
 
+    private UserResponseWrapper mapUserToUserResponseWrapper(User user) {
+        UserResponseWrapper userResponseWrapper = new UserResponseWrapper();
+        userResponseWrapper.setUsername(user.getUsername());
+        userResponseWrapper.setEmail(user.getEmail());
+        userResponseWrapper.setProfilePicture(user.getProfilePicture());
+
+        userResponseWrapper.setFollowers(user.getFollowers().stream()
+                .map(this::mapUserToUserResponseDto)
+                .collect(Collectors.toList()));
+        userResponseWrapper.setFollowing(user.getFollowing().stream()
+                .map(this::mapUserToUserResponseDto)
+                .collect(Collectors.toList()));
+        return userResponseWrapper;
+    }
 
 }

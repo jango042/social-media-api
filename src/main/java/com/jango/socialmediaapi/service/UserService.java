@@ -3,20 +3,20 @@ package com.jango.socialmediaapi.service;
 import com.jango.socialmediaapi.dto.LoginRequest;
 import com.jango.socialmediaapi.dto.response.JwtResponse;
 import com.jango.socialmediaapi.dto.response.UserResponseDto;
-import com.jango.socialmediaapi.entity.User;
+import com.jango.socialmediaapi.dto.response.UserResponseWrapper;
 import com.jango.socialmediaapi.dto.UserDto;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 
 import java.util.List;
 
 public interface UserService {
-    List<UserResponseDto> getAllUsers();
+    List<UserResponseWrapper> getAllUsers();
 
-    UserResponseDto getUserById(Long userId) throws ServiceException;
+    UserResponseWrapper getUserById(Long userId) throws ServiceException;
 
-    UserResponseDto createUser(UserDto userRequest) throws ServiceException;
+    UserResponseWrapper createUser(UserDto userRequest) throws ServiceException;
 
-    UserResponseDto updateUser(UserDto userRequest, Long id) throws ServiceException;
+    UserResponseWrapper updateUser(UserDto userRequest, Long id) throws ServiceException;
 
     void deleteUser(Long userId) throws ServiceException;
 
