@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -45,6 +46,7 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
         ApiResponse<List<UserResponseWrapper>> response = responseEntity.getBody();
+        assert response != null;
         assertEquals(HttpStatus.OK.value(), response.getStatus());
         assertEquals("Users retrieved successfully", response.getMessage());
         assertEquals(userResponseList, response.getData());
@@ -79,9 +81,10 @@ public class UserControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
 
         ApiResponse<UserResponseWrapper> response = responseEntity.getBody();
+        assert response != null;
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
         assertEquals("User not found", response.getMessage());
-        assertEquals(null, response.getData());
+        assertNull(response.getData());
     }
 
     @Test
@@ -102,6 +105,7 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
         ApiResponse<UserResponseWrapper> response = responseEntity.getBody();
+        assert response != null;
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
         assertEquals("User created successfully", response.getMessage());
         assertEquals(createdUser, response.getData());
@@ -134,6 +138,7 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
         ApiResponse<UserResponseWrapper> responseBody = responseEntity.getBody();
+        assert responseBody != null;
         assertEquals(HttpStatus.OK.value(), responseBody.getStatus());
         assertEquals("User updated successfully", responseBody.getMessage());
         assertEquals(updatedUserResponse, responseBody.getData());
@@ -151,7 +156,7 @@ public class UserControllerTest {
 
         verify(userService, times(1)).deleteUser(userId);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("User deleted successfully", response.getBody().getMessage());
+        assertEquals("User deleted successfully", Objects.requireNonNull(response.getBody()).getMessage());
     }
 
     @Test
@@ -185,7 +190,7 @@ public class UserControllerTest {
 
         verify(userService, times(1)).findUserByUsername(username);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(errorMessage, response.getBody().getMessage());
+        assertEquals(errorMessage, Objects.requireNonNull(response.getBody()).getMessage());
         assertNull(response.getBody().getData());
     }
 
