@@ -1,6 +1,6 @@
 # Social Media API Application README
 
-This README provides an overview of your Spring Boot application, including how to run it and interact with the APIs provided by the Post, Comment, and User Controllers.
+This README provides an overview of Social Media Api application, including how to run it and interact with the APIs provided by the Post, Comment, and User Controllers.
 
 ## Table of Contents
 
