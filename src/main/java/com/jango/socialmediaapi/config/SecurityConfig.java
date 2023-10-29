@@ -57,7 +57,7 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/users").permitAll()
+                        auth.requestMatchers("/api/users","/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**","/favicon.ico","/error","/bezkoder-documentation/swagger-ui.html").permitAll()
                                 .requestMatchers("/api/users/login").permitAll()
                                 .anyRequest().authenticated()
                 );

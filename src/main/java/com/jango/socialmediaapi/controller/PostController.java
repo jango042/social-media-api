@@ -7,6 +7,9 @@ import com.jango.socialmediaapi.dto.response.CommentResponseDto;
 import com.jango.socialmediaapi.dto.response.PostResponseDTO;
 import com.jango.socialmediaapi.exceptions.ServiceException;
 import com.jango.socialmediaapi.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,12 +21,18 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/posts")
+@SecurityRequirement(name = "jango")
 public class PostController {
 
     private final PostService postService;
 
 
     @PostMapping
+    @Operation(summary = "Create Post")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+    })
     public ResponseEntity<ApiResponse<PostResponseDTO>> createPost(@RequestBody PostDTO postDto) throws ServiceException {
         PostResponseDTO post = postService.createPost(postDto);
         ApiResponse<PostResponseDTO> response = new ApiResponse<>(HttpStatus.CREATED.value(), "Post created successfully", post);
@@ -31,6 +40,11 @@ public class PostController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all posts")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+    })
     public ResponseEntity<ApiResponse<Page<PostResponseDTO>>> getAllPosts(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -42,6 +56,12 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
+    @Operation(summary = "Get post by id")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found"),
+    })
     public ResponseEntity<ApiResponse<PostResponseDTO>>  getPost(@PathVariable Long postId) throws ServiceException {
         try {
             PostResponseDTO post = postService.getPost(postId);
@@ -54,6 +74,12 @@ public class PostController {
     }
 
     @DeleteMapping("/{postId}/{userId}")
+    @Operation(summary = "delete post")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found"),
+    })
     public ResponseEntity<ApiResponse<String>> deletePost(@PathVariable Long postId, @PathVariable Long userId) {
         try {
             postService.deletePost(postId, userId);
@@ -66,6 +92,12 @@ public class PostController {
     }
 
     @PutMapping("/{postId}")
+    @Operation(summary = "Update post")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found"),
+    })
     public ResponseEntity<ApiResponse<PostResponseDTO>> updatePost(@PathVariable Long postId, @RequestBody PostDTO postDto) {
         try {
             PostResponseDTO updatedPost = postService.updatePost(postId, postDto);
@@ -78,18 +110,33 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/like/{userId}")
+    @Operation(summary = "Like post")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+    })
     public ResponseEntity<ApiResponse<PostResponseDTO>> likePost(@PathVariable Long postId, @PathVariable Long userId) throws ServiceException {
         PostResponseDTO post = postService.likePost(postId, userId);
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "Post liked successfully", post), HttpStatus.OK);
     }
 
     @PostMapping("/{postId}/comment/{userId}")
+    @Operation(summary = "Comment post")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+    })
     public ResponseEntity<ApiResponse<CommentResponseDto>> commentOnPost(@PathVariable Long postId, @PathVariable Long userId, @RequestBody CommentDTO commentDto) throws ServiceException {
         CommentResponseDto comment = postService.commentOnPost(postId, userId, commentDto);
         return new ResponseEntity<>(new ApiResponse<>(HttpStatus.OK.value(), "Comment added successfully", comment), HttpStatus.OK);
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Search and filter posts")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized"),
+    })
     public ResponseEntity<ApiResponse<List<PostResponseDTO>>> searchAndFilterPosts(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "userId", required = false) Long userId,
