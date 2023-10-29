@@ -31,6 +31,6 @@ Before you begin, ensure you have met the following requirements:
 
 ## Access Endpoint
 
-   ```bash
-   http://localhost:9008/swagger-ui/index.html
+To access the endpoints, please click [here](http://localhost:9008/swagger-ui/index.html).
+   
 
