@@ -53,7 +53,7 @@ public class DataGenerator implements CommandLineRunner {
             User user = new User();
             String username = faker.name().firstName() + faker.number().numberBetween(100, 999);
             String email = faker.internet().safeEmailAddress();
-            String password = generateRandomPassword(8);
+            String password = "password"+i;
             if (role.isPresent()) {
                 Set<Role> roleSet = new HashSet<>();
                 roleSet.add(role.get());
@@ -87,15 +87,15 @@ public class DataGenerator implements CommandLineRunner {
         return (long) (Math.random() * 15 + 1);
     }
 
-    private String generateRandomPassword(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
-        StringBuilder password = new StringBuilder();
-        Random random = new Random();
-
-        for (int i = 0; i < length; i++) {
-            password.append(characters.charAt(random.nextInt(characters.length())));
-        }
-
-        return password.toString();
-    }
+//    private String generateRandomPassword(int length) {
+//        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+//        StringBuilder password = new StringBuilder();
+//        Random random = new Random();
+//
+//        for (int i = 0; i < length; i++) {
+//            password.append(characters.charAt(random.nextInt(characters.length())));
+//        }
+//
+//        return password.toString();
+//    }
 }
